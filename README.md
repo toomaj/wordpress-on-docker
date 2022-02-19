@@ -5,7 +5,7 @@ sudo usermod -aG docker your_user_name
 
 ###### Run
 ```
-docker-compose -f stack.yml build && docker-compose up -d
+docker-compose build && docker-compose up -d
 ```
 
 ###### Accessing Wordpress:
