@@ -33,7 +33,6 @@ services:
   db:
     image: mysql:latest
     restart: always
-    command: --mysql-native-password=ON
     environment:
       MYSQL_DATABASE: devdb
       MYSQL_USER: dev
