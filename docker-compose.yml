@@ -37,7 +37,7 @@ services:
       MYSQL_DATABASE: devdb
       MYSQL_USER: dev
       MYSQL_PASSWORD: password
-      MYSQL_RANDOM_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
     volumes:
       - db:/var/lib/mysql
 
