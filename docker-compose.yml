@@ -1,46 +1,44 @@
 services:
-
   wordpress:
-    platform: linux/arm64/v8
+    platform: "${DOCKER_PLATFORM:-linux/amd64}" # keep if you’re on Apple Silicon; remove on x86_64
     build:
       context: .
       dockerfile: wp.Dockerfile
     restart: always
     ports:
-      - 8080:80
+      - "${WP_HTTP_PORT:-8080}:80"
     environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_USER: dev
-      WORDPRESS_DB_PASSWORD: password
-      WORDPRESS_DB_NAME: devdb
-      UPLOAD_LIMIT: 500M
-      POST_MAX_SIZE: 500M
-      MAX_EXECUTION_TIME: 6000
+      WORDPRESS_DB_HOST: "${WORDPRESS_DB_HOST:-db}"
+      WORDPRESS_DB_NAME: "${WORDPRESS_DB_NAME:-devdb}"
+      WORDPRESS_DB_USER: "${WORDPRESS_DB_USER:-dev}"
+      WORDPRESS_DB_PASSWORD: "${WORDPRESS_DB_PASSWORD:-password}"
     volumes:
       - wordpress:/var/www/html
+      - ./files/profile.ini:/usr/local/etc/php/conf.d/zzz-profile.ini:ro
 
   phpmyadmin:
-    image: phpmyadmin:latest
+    image: "${PHPMYADMIN_IMAGE:-phpmyadmin:latest}"
     restart: always
     ports:
-      - 8082:80
+      - "${PHPMYADMIN_PORT:-8082}:80"
     environment:
-      PMA_ARBITRARY: 1
-      UPLOAD_LIMIT: 500M
-      POST_MAX_SIZE: 500M
-      MAX_EXECUTION_TIME: 6000
+      PMA_HOST: "${WORDPRESS_DB_HOST:-db}"
+      PMA_USER: "${WORDPRESS_DB_USER:-dev}"
+      PMA_PASSWORD: "${WORDPRESS_DB_PASSWORD:-password}"
 
   db:
-    image: mysql:latest
+    image: "${MYSQL_IMAGE:-mysql:latest}"
     restart: always
     environment:
-      MYSQL_DATABASE: devdb
-      MYSQL_USER: dev
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-devdb}"
+      MYSQL_USER: "${MYSQL_USER:-dev}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-password}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-password}"
     volumes:
       - db:/var/lib/mysql
 
 volumes:
   wordpress:
+    name: ${WP_VOLUME_NAME:-wordpress}
   db:
+    name: ${DB_VOLUME_NAME:-db}
