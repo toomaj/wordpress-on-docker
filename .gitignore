@@ -1,2 +1,9 @@
-./file/nginx-selfsigned.crt
-./files/nginx-selfsigned.key
+.env
+wordpress/plugins/*
+!wordpress/plugins/.gitkeep
+wordpress/themes/*
+!wordpress/themes/.gitkeep
+wordpress/mu-plugins/*
+!wordpress/mu-plugins/.gitkeep
+wordpress/uploads/*
+!wordpress/uploads/.gitignore

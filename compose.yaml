@@ -1,0 +1,87 @@
+services:
+  wordpress:
+    image: ${WORDPRESS_IMAGE:-wordpress:latest}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    ports:
+      - "${WORDPRESS_PORT:-8080}:80"
+    environment:
+      WORDPRESS_DB_HOST: "${WORDPRESS_DB_HOST:-db:3306}"
+      WORDPRESS_DB_NAME: "${WORDPRESS_DB_NAME:-wordpress}"
+      WORDPRESS_DB_USER: "${WORDPRESS_DB_USER:-wordpress}"
+      WORDPRESS_DB_PASSWORD: "${WORDPRESS_DB_PASSWORD:-wordpress}"
+      WORDPRESS_TABLE_PREFIX: "${WORDPRESS_TABLE_PREFIX:-wp_}"
+      WORDPRESS_DEBUG: "${WORDPRESS_DEBUG:-1}"
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./wordpress/plugins:/var/www/html/wp-content/plugins
+      - ./wordpress/themes:/var/www/html/wp-content/themes
+      - ./wordpress/mu-plugins:/var/www/html/wp-content/mu-plugins
+      - ./wordpress/uploads:/var/www/html/wp-content/uploads
+
+  wpcli:
+    image: ${WORDPRESS_CLI_IMAGE:-wordpress:cli}
+    depends_on:
+      db:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+    working_dir: /var/www/html
+    entrypoint: ["wp"]
+    environment:
+      WORDPRESS_DB_HOST: "${WORDPRESS_DB_HOST:-db:3306}"
+      WORDPRESS_DB_NAME: "${WORDPRESS_DB_NAME:-wordpress}"
+      WORDPRESS_DB_USER: "${WORDPRESS_DB_USER:-wordpress}"
+      WORDPRESS_DB_PASSWORD: "${WORDPRESS_DB_PASSWORD:-wordpress}"
+      WORDPRESS_TABLE_PREFIX: "${WORDPRESS_TABLE_PREFIX:-wp_}"
+      WORDPRESS_DEBUG: "${WORDPRESS_DEBUG:-1}"
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./wordpress/plugins:/var/www/html/wp-content/plugins
+      - ./wordpress/themes:/var/www/html/wp-content/themes
+      - ./wordpress/mu-plugins:/var/www/html/wp-content/mu-plugins
+      - ./wordpress/uploads:/var/www/html/wp-content/uploads
+
+  phpmyadmin:
+    image: ${PHPMYADMIN_IMAGE:-phpmyadmin:latest}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    ports:
+      - "${PHPMYADMIN_PORT:-8081}:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: "${MYSQL_USER:-wordpress}"
+      PMA_PASSWORD: "${MYSQL_PASSWORD:-wordpress}"
+
+  db:
+    image: ${DB_IMAGE:-mariadb:latest}
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: "${MYSQL_DATABASE:-wordpress}"
+      MARIADB_USER: "${MYSQL_USER:-wordpress}"
+      MARIADB_PASSWORD: "${MYSQL_PASSWORD:-wordpress}"
+      MARIADB_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-wordpress_root}"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mariadb-admin ping -h 127.0.0.1 -uroot -p"$${MARIADB_ROOT_PASSWORD}" --silent
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  wordpress_data:
+  db_data:

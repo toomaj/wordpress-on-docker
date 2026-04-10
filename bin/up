@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+
+err() {
+  printf 'Error: %s\n' "$1" >&2
+  exit 1
+}
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || err "Missing required command: $1"
+}
+
+ensure_env() {
+  if [[ ! -f "${PROJECT_ROOT}/.env" ]]; then
+    [[ -f "${PROJECT_ROOT}/.env.example" ]] || err "Missing .env.example in ${PROJECT_ROOT}"
+    cp "${PROJECT_ROOT}/.env.example" "${PROJECT_ROOT}/.env"
+    printf 'Created .env from .env.example\n'
+  fi
+}
+
+load_env() {
+  set -a
+  # shellcheck disable=SC1091
+  source "${PROJECT_ROOT}/.env"
+  set +a
+}
+
+prepare_mounts() {
+  mkdir -p \
+    "${PROJECT_ROOT}/wordpress/plugins" \
+    "${PROJECT_ROOT}/wordpress/themes" \
+    "${PROJECT_ROOT}/wordpress/mu-plugins" \
+    "${PROJECT_ROOT}/wordpress/uploads"
+}
+
+main() {
+  require_command docker
+  docker compose version >/dev/null 2>&1 || err "Docker Compose is not available. Install a Docker version that includes 'docker compose'."
+  docker info >/dev/null 2>&1 || err "Docker is installed but not reachable. Start Docker Desktop or the Docker daemon, then try again."
+
+  ensure_env
+  load_env
+  prepare_mounts
+
+  cd "${PROJECT_ROOT}"
+  docker compose up -d db wordpress phpmyadmin
+
+  printf '\nWordPress runtime environment is up.\n'
+  printf 'Site: http://localhost:%s\n' "${WORDPRESS_PORT:-8080}"
+  printf 'phpMyAdmin: http://localhost:%s\n' "${PHPMYADMIN_PORT:-8081}"
+  printf 'WP-CLI: ./bin/wp <command>\n'
+  printf 'Stop: ./bin/down\n'
+  printf '\nCommon commands:\n'
+  printf '  ./bin/wp core version\n'
+  printf '  ./bin/wp plugin list\n'
+  printf '  ./bin/wp theme list\n'
+}
+
+main "$@"

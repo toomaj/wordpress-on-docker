@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+
+err() {
+  printf 'Error: %s\n' "$1" >&2
+  exit 1
+}
+
+main() {
+  command -v docker >/dev/null 2>&1 || err "Missing required command: docker"
+  docker compose version >/dev/null 2>&1 || err "Docker Compose is not available."
+  docker info >/dev/null 2>&1 || err "Docker is installed but not reachable. Start Docker Desktop or the Docker daemon, then try again."
+
+  cd "${PROJECT_ROOT}"
+  docker compose down --remove-orphans
+
+  printf 'WordPress runtime environment is down.\n'
+  printf 'Database volumes were left intact.\n'
+}
+
+main "$@"
