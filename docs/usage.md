@@ -24,6 +24,7 @@ What this does:
 - Verifies Docker is installed and reachable
 - Creates `.env` from `.env.example` if needed
 - Ensures the local `wordpress/` mount directories exist
+- Refreshes the bundled default themes and plugins from the current WordPress image
 - Starts the database and WordPress services
 - Starts phpMyAdmin
 
@@ -125,6 +126,7 @@ This repository uses a split storage model:
 
 - WordPress core and generated runtime files live in a shared Docker volume at `/var/www/html`
 - Development-owned `wp-content` directories are bind-mounted from the host
+- `./bin/up` refreshes official bundled themes and plugins into the local bind mounts
 
 The bind mounts are:
 
@@ -133,7 +135,7 @@ The bind mounts are:
 - `./wordpress/mu-plugins` -> `/var/www/html/wp-content/mu-plugins`
 - `./wordpress/uploads` -> `/var/www/html/wp-content/uploads`
 
-This keeps theme, plugin, mu-plugin, and upload files local where practical, while WordPress core stays in Docker and is shared with the WP-CLI container.
+This keeps theme, plugin, mu-plugin, and upload files local where practical, while WordPress core stays in Docker and is shared with the WP-CLI container. It also keeps the default bundled themes and plugins aligned with the currently configured WordPress image.
 
 ## Accessing the Local WordPress Site
 

@@ -49,6 +49,7 @@ Change the port in `.env` if needed.
 - `mariadb:latest` is the default database service.
 - `phpmyadmin:latest` is available for database inspection on a local port.
 - WordPress core lives in a Docker volume shared by the runtime and WP-CLI containers.
+- `./bin/up` refreshes bundled default themes and plugins from the current official WordPress image.
 - Local development-owned WordPress files are mounted from `./wordpress` into `wp-content` paths inside the container.
 
 ## Codex Expectations

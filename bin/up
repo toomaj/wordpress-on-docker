@@ -36,6 +36,40 @@ prepare_mounts() {
     "${PROJECT_ROOT}/wordpress/uploads"
 }
 
+sync_bundled_wp_content() {
+  local wordpress_image="${WORDPRESS_IMAGE:-wordpress:latest}"
+
+  printf 'Refreshing bundled WordPress themes and plugins from %s\n' "${wordpress_image}"
+
+  docker run --rm \
+    --user "$(id -u):$(id -g)" \
+    -v "${PROJECT_ROOT}:/workspace" \
+    "${wordpress_image}" \
+    bash -lc '
+      set -euo pipefail
+
+      mkdir -p /workspace/wordpress/plugins /workspace/wordpress/themes
+
+      rm -rf /workspace/wordpress/plugins/akismet
+      rm -f /workspace/wordpress/plugins/hello.php
+
+      if [[ -d /usr/src/wordpress/wp-content/plugins/akismet ]]; then
+        cp -a /usr/src/wordpress/wp-content/plugins/akismet /workspace/wordpress/plugins/
+      fi
+
+      if [[ -f /usr/src/wordpress/wp-content/plugins/hello.php ]]; then
+        cp -a /usr/src/wordpress/wp-content/plugins/hello.php /workspace/wordpress/plugins/
+      fi
+
+      find /workspace/wordpress/themes -mindepth 1 -maxdepth 1 -type d -name "twenty*" -exec rm -rf {} +
+
+      shopt -s nullglob
+      for theme_dir in /usr/src/wordpress/wp-content/themes/twenty*; do
+        cp -a "${theme_dir}" /workspace/wordpress/themes/
+      done
+    '
+}
+
 main() {
   require_command docker
   docker compose version >/dev/null 2>&1 || err "Docker Compose is not available. Install a Docker version that includes 'docker compose'."
@@ -44,6 +78,7 @@ main() {
   ensure_env
   load_env
   prepare_mounts
+  sync_bundled_wp_content
 
   cd "${PROJECT_ROOT}"
   docker compose up -d db wordpress phpmyadmin
