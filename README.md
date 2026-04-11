@@ -1,6 +1,6 @@
 # WordPress Docker Runtime
 
-This project is a local WordPress runtime that runs entirely through Docker. It uses the official WordPress Docker image for the main application runtime, includes a database service, and adds phpMyAdmin for database access.
+This project is a local WordPress runtime that runs entirely through Docker. It uses the official WordPress Docker image as the runtime base, adds WP-CLI into that runtime image for convenience, includes a database service, and adds phpMyAdmin for database access.
 
 ## Quick Start
 
@@ -45,10 +45,10 @@ Change the port in `.env` if needed.
 ## Project Shape
 
 - `compose.yaml` defines the Docker-first runtime.
-- `wordpress:latest` is the default official WordPress runtime image.
+- `Dockerfile` extends the official WordPress image and makes `wp` available on `PATH`.
 - `mariadb:latest` is the default database service.
 - `phpmyadmin:latest` is available for database inspection on a local port.
-- WordPress core lives in a Docker volume shared by the runtime and WP-CLI containers.
+- WordPress core lives in a Docker volume used by the runtime container.
 - `./bin/up` refreshes bundled default themes and plugins from the current official WordPress image.
 - Local development-owned WordPress files are mounted from `./wordpress` into `wp-content` paths inside the container.
 

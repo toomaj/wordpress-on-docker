@@ -11,6 +11,7 @@ This repository is a minimal, Docker-first WordPress runtime project.
   - `./bin/wp`
 - Prefer Docker Compose based workflows over ad hoc Docker commands.
 - Keep the project aligned with the official WordPress Docker image approach.
+- The runtime image extends the official WordPress image only to expose `wp` on `PATH`.
 - Do not introduce custom PHP builds, PHP version switching, Composer, or extra infrastructure unless WordPress itself strictly requires it.
 - Do not add extra services such as phpMyAdmin, Redis, Mailhog, queues, or search services unless the current task explicitly requires them.
 - Treat `compose.yaml` and the `bin/` scripts as the canonical local workflow.

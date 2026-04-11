@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project uses a Docker-first WordPress workflow. WordPress runs in Docker, the database runs in Docker, WP-CLI is executed through Docker, and phpMyAdmin is available for database access in the browser. The local repository owns the development-facing `wp-content` directories, while the official WordPress image provides the application runtime.
+This project uses a Docker-first WordPress workflow. WordPress runs in Docker, the database runs in Docker, WP-CLI runs inside the main WordPress runtime container, and phpMyAdmin is available for database access in the browser. The local repository owns the development-facing `wp-content` directories, while the official WordPress image provides the application runtime base.
 
 ## Prerequisites
 
@@ -68,7 +68,7 @@ Use:
 ./bin/wp <arguments>
 ```
 
-The wrapper runs WP-CLI inside Docker against the local WordPress install and passes all arguments through as-is.
+The wrapper runs WP-CLI inside the main WordPress container against the local WordPress install and passes all arguments through as-is.
 
 Example:
 
@@ -124,7 +124,7 @@ List users:
 
 This repository uses a split storage model:
 
-- WordPress core and generated runtime files live in a shared Docker volume at `/var/www/html`
+- WordPress core and generated runtime files live in a Docker volume at `/var/www/html`
 - Development-owned `wp-content` directories are bind-mounted from the host
 - `./bin/up` refreshes official bundled themes and plugins into the local bind mounts
 
@@ -135,7 +135,7 @@ The bind mounts are:
 - `./wordpress/mu-plugins` -> `/var/www/html/wp-content/mu-plugins`
 - `./wordpress/uploads` -> `/var/www/html/wp-content/uploads`
 
-This keeps theme, plugin, mu-plugin, and upload files local where practical, while WordPress core stays in Docker and is shared with the WP-CLI container. It also keeps the default bundled themes and plugins aligned with the currently configured WordPress image.
+This keeps theme, plugin, mu-plugin, and upload files local where practical, while WordPress core stays in Docker inside the runtime container. It also keeps the default bundled themes and plugins aligned with the currently configured WordPress image.
 
 ## Accessing the Local WordPress Site
 
