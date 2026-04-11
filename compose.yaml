@@ -1,9 +1,11 @@
 services:
   wordpress:
-    image: ${WORDPRESS_IMAGE:-wordpress:latest}
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        WORDPRESS_BASE_IMAGE: "${WORDPRESS_BASE_IMAGE:-wordpress:latest}"
+        WORDPRESS_CLI_SOURCE_IMAGE: "${WORDPRESS_CLI_SOURCE_IMAGE:-wordpress:cli}"
     depends_on:
       db:
         condition: service_healthy

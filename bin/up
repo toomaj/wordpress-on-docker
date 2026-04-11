@@ -37,7 +37,7 @@ prepare_mounts() {
 }
 
 sync_bundled_wp_content() {
-  local wordpress_image="${WORDPRESS_IMAGE:-wordpress:latest}"
+  local wordpress_image="${WORDPRESS_BASE_IMAGE:-wordpress:latest}"
 
   printf 'Refreshing bundled WordPress themes and plugins from %s\n' "${wordpress_image}"
 
