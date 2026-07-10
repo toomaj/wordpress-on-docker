@@ -46,6 +46,7 @@ Change the port in `.env` if needed.
 
 - `compose.yaml` defines the Docker-first runtime.
 - `Dockerfile` extends the official WordPress image and makes `wp` available on `PATH`.
+- `docker/php/uploads.ini` raises PHP upload and related limits for the WordPress container.
 - `mariadb:latest` is the default database service.
 - `phpmyadmin:latest` is available for database inspection on a local port.
 - WordPress core lives in a Docker volume used by the runtime container.

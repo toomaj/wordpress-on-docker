@@ -134,8 +134,25 @@ The bind mounts are:
 - `./wordpress/themes` -> `/var/www/html/wp-content/themes`
 - `./wordpress/mu-plugins` -> `/var/www/html/wp-content/mu-plugins`
 - `./wordpress/uploads` -> `/var/www/html/wp-content/uploads`
+- `./docker/php/uploads.ini` -> `/usr/local/etc/php/conf.d/uploads.ini`
 
 This keeps theme, plugin, mu-plugin, and upload files local where practical, while WordPress core stays in Docker inside the runtime container. It also keeps the default bundled themes and plugins aligned with the currently configured WordPress image.
+
+## PHP Upload Limits
+
+PHP upload and related limits are set in `docker/php/uploads.ini` and mounted into the WordPress container’s `conf.d` directory. Defaults are:
+
+- `upload_max_filesize = 64M`
+- `post_max_size = 64M`
+- `memory_limit = 256M`
+- `max_execution_time = 300`
+- `max_input_time = 300`
+
+Edit that file, then restart with `./bin/down` and `./bin/up`. Confirm with:
+
+```bash
+./bin/wp eval 'echo ini_get("upload_max_filesize");'
+```
 
 ## Accessing the Local WordPress Site
 
